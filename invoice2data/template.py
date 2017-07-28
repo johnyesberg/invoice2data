@@ -12,7 +12,8 @@ from unidecode import unidecode
 import logging as logger
 from collections import OrderedDict
 
-from invoice2data.utils import ordered_load
+# from invoice2data.utils import ordered_load
+from utils import ordered_load
 
 OPTIONS_DEFAULT = {
     'remove_whitespace': False,
@@ -151,7 +152,7 @@ class InvoiceTemplate(OrderedDict):
         # Try to find data for each field.
         output = {}
         output['issuer'] = self['issuer']
-        
+
         for k, v in self['fields'].items():
             if k.startswith('static_'):
                 logger.debug("field=%s | static value=%s", k, v)
