@@ -88,6 +88,9 @@ def main():
     parser.add_argument('--exclude-built-in-templates', dest='exclude_built_in_templates',
                         default=False, help='Ignore built-in templates.', action="store_true")
 
+    parser.add_argument('--report-per-vendor', dest='report_per_vendor',
+                        default=False, help='Generates a seperate report for each vendor.', action="store_true")
+
     parser.add_argument('input_files', type=argparse.FileType('r'), nargs='+',
                         help='File or directory to analyze.')
 
@@ -112,7 +115,10 @@ def main():
     out_per_issuer = dict()
     for f in args.input_files:
         logging.info("processing file %s" % f.name)
+        pdf_title = pdftotext.get_document_title(f.name)
+        logging.info("file title: %s" % pdf_title)
         res = extract_data(f.name, templates=templates)
+        res['title'] = pdf_title
         if res['issuer'] in out_per_issuer.keys():
             out_per_issuer[res['issuer']].append(res)
         else:
@@ -127,10 +133,11 @@ def main():
                     desc=res['desc'])
                 shutil.copyfile(f.name, join(args.copy, filename))
 
-    for issuer, invoices in out_per_issuer.iteritems():
-        write_issuer_invoices(issuer, invoices)
-
-    invoices_to_csv(output, 'invoices-output.csv')
+    if args.report_per_vendor:
+        for issuer, invoices in out_per_issuer.iteritems():
+            write_issuer_invoices(issuer, invoices)
+    else:
+        invoices_to_csv(output, 'invoices-output.csv')
 
 if __name__ == '__main__':
     main()

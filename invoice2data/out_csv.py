@@ -1,4 +1,10 @@
+import logging
+
 import csv
+import pandas as pd
+
+from utils import remove_empty_lines
+
 
 def invoices_to_csv(data, path):
     """ Writes  a CSV file with date, desc, and amount only
@@ -25,10 +31,29 @@ def write_issuer_invoices(issuer, invoices):
         issuer (str): name of the issuer
         invoices (list[dict]): list of the the invoices to be written into a single file
     """
-    pass
-    # assert False, "Not implemented"
-    #
-    # loging.info("Writing output summary for %s " % issuer)
 
-    # for  in invoices.iteritems():
-    #     pass
+    # if there are 'lines' we look for the union of the fields names
+    has_lines = False
+    for invoice in invoices:
+         if 'lines' in invoice:
+             logging.info("lines is in invoice")
+             has_lines = True
+             break
+
+    rows = []
+    for invoice in invoices:
+        invoice.pop("desc")
+        if has_lines:
+            lines = remove_empty_lines(invoice.pop("lines"))
+            for line in lines:
+                full_line = invoice.copy()
+                full_line.update(line)
+                rows.append(full_line)
+        else:
+            rows.append(invoice)
+
+
+    out_filename = (issuer + "_summary.csv").replace(' ', '_')
+    logging.info("Writing output summary for %s into %s" % (issuer, out_filename))
+    summary = pd.DataFrame(rows).set_index(['title', 'invoice_number'])
+    summary.to_csv(out_filename, index=True)
