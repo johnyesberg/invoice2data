@@ -18,13 +18,17 @@ def invoices_to_csv(data, path):
                 line['desc'],
                 line['amount']])
 
+
 def write_issuer_invoices(issuer, invoices):
     """
     Args:
         issuer (str): name of the issuer
         invoices (list[dict]): list of the the invoices to be written into a single file
     """
-    assert False, "Not implemented"
+    pass
+    # assert False, "Not implemented"
     #
-    # for invoice in invoices:
-    #     ????
+    # loging.info("Writing output summary for %s " % issuer)
+
+    # for  in invoices.iteritems():
+    #     pass
