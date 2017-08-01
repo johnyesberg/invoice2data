@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 import argparse
 import shutil
 import os
 from os.path import join
 import pkg_resources
-# import invoice2data.in_pdftotext as pdftotext
-# from invoice2data.template import read_templates
-# from invoice2data.out_csv import invoices_to_csv
-import in_pdftotext as pdftotext
-from template import read_templates
-from out_csv import invoices_to_csv, write_issuer_invoices
-import logging
+
+from invoice2data import in_pdftotext as pdftotext
+from invoice2data.template import read_templates
+from invoice2data.out_csv import invoices_to_csv, write_issuer_invoices
 
 logger = logging.getLogger(__name__)
 
@@ -115,16 +114,21 @@ def main():
     out_per_issuer = dict()
     for f in args.input_files:
         logging.info("processing file %s" % f.name)
-        pdf_title = pdftotext.get_document_title(f.name)
-        logging.info("file title: %s" % pdf_title)
         res = extract_data(f.name, templates=templates)
-        res['title'] = pdf_title
-        if res['issuer'] in out_per_issuer.keys():
-            out_per_issuer[res['issuer']].append(res)
-        else:
-            out_per_issuer[res['issuer']] = [res]
 
         if res:
+            if res['issuer'] in out_per_issuer.keys():
+                out_per_issuer[res['issuer']].append(res)
+            else:
+                out_per_issuer[res['issuer']] = [res]
+
+            try:
+                pdf_title = pdftotext.get_document_title(f.name)
+                logging.info("file title: %s" % pdf_title)
+                res['title'] = pdf_title
+            except KeyError:
+                logging.info("%s doesn't have a title... using filename instaed" % f.name)
+                res['title'] = f.name
             logger.info(res)
             output.append(res)
             if args.copy:
