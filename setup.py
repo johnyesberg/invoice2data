@@ -30,4 +30,6 @@ setup(
                   'invoice2data = invoice2data.main:main',
               ],
           },
+    test_suite='nose.collector',
+    tests_require=['nose'],
 )
