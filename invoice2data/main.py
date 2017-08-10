@@ -16,25 +16,9 @@ from invoice2data.out_csv import invoices_to_csv, write_issuer_invoices
 logger = logging.getLogger(__name__)
 
 FILENAME = "{date} {desc}.pdf"
-UTF_CHAR_MAP = {u'\u2212': '-' } #FIXME: OBT
 
 
-def _replace_special_chars(text, character_map=UTF_CHAR_MAP):
-    """ Replace strange utf-8 charecters with known charecters
-
-    Args:
-        text (str): a block ot text
-
-    Returns:
-        text (str): a block ot text
-
-    """
-    for key, val in character_map.iteritems():
-        text = text.replace(key, val)
-    return text
-
-
-def extract_data(invoicefile, templates=None, debug=False):
+def extract_data(invoicefile, templates=None, debug=False, encoding='ASCII7'):
     """
     Args:
         invoicefile (str): a path to an invoice file
@@ -47,9 +31,7 @@ def extract_data(invoicefile, templates=None, debug=False):
         templates = read_templates(
             pkg_resources.resource_filename('invoice2data', 'templates'))
 
-    extracted_str = pdftotext.to_text(invoicefile).decode('utf-8')
-    extracted_str = _replace_special_chars(extracted_str) #FIXME: OBT
-
+    extracted_str = pdftotext.to_text(invoicefile, encoding=encoding)
     charcount = len(extracted_str)
     logger.debug('number of char in pdf2text extract: %d', charcount)
     # Disable Tesseract for now.
@@ -90,6 +72,9 @@ def main():
     parser.add_argument('--report-per-vendor', dest='report_per_vendor',
                         default=False, help='Generates a seperate report for each vendor.', action="store_true")
 
+    parser.add_argument('--encoding', dest='encoding',
+                        default='ASCII7', help='Encoding of the text')
+
     parser.add_argument('input_files', type=argparse.FileType('r'), nargs='+',
                         help='File or directory to analyze.')
 
@@ -114,7 +99,7 @@ def main():
     out_per_issuer = dict()
     for f in args.input_files:
         logging.info("processing file %s" % f.name)
-        res = extract_data(f.name, templates=templates)
+        res = extract_data(f.name, templates=templates, encoding=args.encoding)
 
         if res:
             if res['issuer'] in out_per_issuer.keys():
@@ -139,7 +124,7 @@ def main():
 
     if args.report_per_vendor:
         for issuer, invoices in out_per_issuer.iteritems():
-            write_issuer_invoices(issuer, invoices)
+            write_issuer_invoices(issuer, invoices, args.encoding)
     else:
         invoices_to_csv(output, 'invoices-output.csv')
 

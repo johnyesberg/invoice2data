@@ -6,14 +6,14 @@ from distutils import spawn #py2 compat
 from PyPDF2 import PdfFileReader
 
 
-def to_text(path):
+def to_text(path, encoding='ASCII7'):
     """
     Wrapper around Poppler pdftotext.
     """
 
     if spawn.find_executable("pdftotext"): #shutil.which('pdftotext'):
         out, err = subprocess.Popen(
-            ["pdftotext", '-layout', '-enc', 'UTF-8', path, '-'],
+            ["pdftotext", '-layout', '-enc', encoding, path, '-'],
             stdout=subprocess.PIPE).communicate()
         return out
     else:
