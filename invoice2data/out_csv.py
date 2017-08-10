@@ -25,11 +25,12 @@ def invoices_to_csv(data, path):
                 line['amount']])
 
 
-def write_issuer_invoices(issuer, invoices):
+def write_issuer_invoices(issuer, invoices, encoding):
     """
     Args:
         issuer (str): name of the issuer
         invoices (list[dict]): list of the the invoices to be written into a single file
+        encoding (str): text encoding
     """
 
     # if there are 'lines' we look for the union of the fields names
@@ -56,4 +57,6 @@ def write_issuer_invoices(issuer, invoices):
     out_filename = (issuer + "_summary.csv").replace(' ', '_')
     logging.info("Writing output summary for %s into %s" % (issuer, out_filename))
     summary = pd.DataFrame(rows).set_index(['title', 'invoice_number'])
-    summary.to_csv(out_filename, index=True)
+    if encoding == 'ASCII7':
+        encoding = 'ascii'
+    summary.to_csv(out_filename, index=True, encoding=encoding)
