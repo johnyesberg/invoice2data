@@ -242,11 +242,16 @@ class InvoiceTemplate(OrderedDict):
             match = re.search(self['lines']['line'], line)
             if match:
                 for field, value in match.groupdict().items():
+                    try:
+                        value = value.strip()
+                    except AttributeError as err:
+                        logger.warning("Couldn't find value for %s: %s" % (field, err))
+                        value = ''
                     current_row[field] = '%s%s%s' % (
                         current_row.get(field, ''),
                         current_row.get(field, '') and '\n' or '',
-                        value.strip()
-                    )
+                        value
+                        )
                 continue
             logger.warning(
                 'ignoring *%s* because it doesn\'t match anything', line

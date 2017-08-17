@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-import argparse
-import shutil
 import os
 from os.path import join
+
+import argparse
+import glob
+import shutil
 import pkg_resources
 
 from invoice2data import in_pdftotext as pdftotext
@@ -44,6 +45,7 @@ def extract_data(invoicefile, templates=None, debug=False, encoding='ASCII7'):
 
     logger.debug('Testing {} template files'.format(len(templates)))
     for t in templates:
+        logger.debug('Trying template {}'.format(t))
         optimized_str = t.prepare_input(extracted_str)
 
         if t.matches_input(optimized_str):
@@ -75,8 +77,11 @@ def main():
     parser.add_argument('--encoding', dest='encoding',
                         default='ASCII7', help='Encoding of the text')
 
-    parser.add_argument('input_files', type=argparse.FileType('r'), nargs='+',
-                        help='File or directory to analyze.')
+    parser.add_argument('--input_files', type=str, nargs='+',
+                        help='Files to analyze.')
+
+    parser.add_argument('input_directory', help='Input directory with PDF files to analyze.')
+
 
     args = parser.parse_args()
 
@@ -97,9 +102,14 @@ def main():
 
     output = []
     out_per_issuer = dict()
-    for f in args.input_files:
-        logging.info("processing file %s" % f.name)
-        res = extract_data(f.name, templates=templates, encoding=args.encoding)
+    if args.input_files:
+        files = args.input_files
+    else:
+        files = glob.iglob(args.input_directory + '/*.pdf')
+
+    for file_name in files:
+        logging.info("processing file %s" % file_name)
+        res = extract_data(file_name, templates=templates, encoding=args.encoding)
 
         if res:
             if res['issuer'] in out_per_issuer.keys():
@@ -108,12 +118,12 @@ def main():
                 out_per_issuer[res['issuer']] = [res]
 
             try:
-                pdf_title = pdftotext.get_document_title(f.name)
+                pdf_title = pdftotext.get_document_title(file_name)
                 logging.info("file title: %s" % pdf_title)
                 res['title'] = pdf_title
             except KeyError:
-                logging.info("%s doesn't have a title... using filename instaed" % f.name)
-                res['title'] = f.name
+                logging.info("%s doesn't have a title... using filename instaed" % file_name)
+                res['title'] = file_name
             logger.info(res)
             output.append(res)
             if args.copy:
