@@ -193,10 +193,14 @@ class InvoiceTemplate(OrderedDict):
         output['currency'] = self.options['currency']
 
         if len(output.keys()) >= 5:
-            output['desc'] = 'Invoice %s from %s' % (
-                output['invoice_number'], self['issuer'])
-            logger.debug(output)
-            return output
+            try:
+                output['desc'] = 'Invoice %s from %s' % (
+                    output['invoice_number'], self['issuer'])
+                logger.debug(output)
+                return output
+            except KeyError as err:
+                logger.warning("Failed to process file: %s" % err)
+                return None
         else:
             logger.error(output)
             return None
