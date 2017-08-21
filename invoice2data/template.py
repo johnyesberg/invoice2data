@@ -163,11 +163,11 @@ class InvoiceTemplate(OrderedDict):
                 # Fields can have multiple expressions
                 if type(v) is list:
                     for v_option in v:
-                        res_find = re.findall(v_option, optimized_str)
+                        res_find = re.findall(v_option, optimized_str, re.DOTALL)
                         if res_find:
                             break
                 else:
-                    res_find = re.findall(v, optimized_str)
+                    res_find = re.findall(v, optimized_str, re.DOTALL)
                 if res_find:
                     logger.debug("res_find=%s", res_find)
                     if k.startswith('date'):
