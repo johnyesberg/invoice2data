@@ -71,6 +71,9 @@ def main():
     parser.add_argument('--exclude-built-in-templates', dest='exclude_built_in_templates',
                         default=False, help='Ignore built-in templates.', action="store_true")
 
+    parser.add_argument('--include-file-name', dest='include_file_name',
+                    default=False, help='Write the file name of the quote in the report.', action="store_true")
+
     parser.add_argument('--report-per-vendor', dest='report_per_vendor',
                         default=False, help='Generates a seperate report for each vendor.', action="store_true")
 
@@ -116,6 +119,9 @@ def main():
                 out_per_issuer[res['issuer']].append(res)
             else:
                 out_per_issuer[res['issuer']] = [res]
+
+            if args.include_file_name:
+                res['file_name'] = os.path.basename(file_name)
 
             try:
                 pdf_title = pdftotext.get_document_title(file_name)
