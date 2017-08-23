@@ -199,20 +199,22 @@ class InvoiceTemplate(OrderedDict):
                 logger.debug(output)
                 return output
             except KeyError as err:
-                logger.warning("Failed to process file: %s" % err)
+                logger.error("Failed to process file: %s" % err)
                 return None
         else:
-            logger.error(output)
+            logger.error("Only %s keys in output: %s" % (len(output.keys()), output.keys()) )
             return None
 
     def extract_lines(self, content, output):
         """Try to extract lines from the invoice"""
         start = re.search(self['lines']['start'], content)
-        end = re.search(self['lines']['end'], content)
+        end = re.search(self['lines']['end'], content[start.end():])
+        _end_start = end.start() + start.end()
         if not start or not end:
             logger.warning('no lines found - start %s, end %s', start, end)
             return
-        content = content[start.end():end.start()]
+        content = content[start.end():_end_start]
+        logger.info("content has %s cherecters" % (len(content)))
         lines = []
         current_row = {}
         for line in re.split(self.options['line_separator'], content):
@@ -257,7 +259,7 @@ class InvoiceTemplate(OrderedDict):
                         value
                         )
                 continue
-            logger.warning(
+            logger.debug(
                 'ignoring *%s* because it doesn\'t match anything', line
             )
         if current_row:
