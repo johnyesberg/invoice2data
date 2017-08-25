@@ -1,4 +1,5 @@
 import logging
+import os
 
 import csv
 import pandas as pd
@@ -25,12 +26,13 @@ def invoices_to_csv(data, path):
                 line['amount']])
 
 
-def write_issuer_invoices(issuer, invoices, encoding):
+def write_issuer_invoices(issuer, invoices, encoding, output_dir):
     """
     Args:
         issuer (str): name of the issuer
         invoices (list[dict]): list of the the invoices to be written into a single file
         encoding (str): text encoding
+        output_dir (str): directory for the output files
     """
 
     # if there are 'lines' we look for the union of the fields names
@@ -54,7 +56,7 @@ def write_issuer_invoices(issuer, invoices, encoding):
             rows.append(invoice)
 
 
-    out_filename = (issuer + "_summary.csv").replace(' ', '_')
+    out_filename = os.path.join(output_dir ,(issuer + "_summary.csv").replace(' ', '_'))
     logging.info("Writing output summary for %s into %s" % (issuer, out_filename))
     summary = pd.DataFrame(rows).set_index(['title', 'invoice_number'])
     if encoding == 'ASCII7':
