@@ -83,8 +83,10 @@ def main():
     parser.add_argument('--input_files', type=str, nargs='+',
                         help='Files to analyze.')
 
-    parser.add_argument('input_directory', help='Input directory with PDF files to analyze.')
+    parser.add_argument('--output-directory', type=str, default='.', dest='output_dir',
+                        help='Out directory for the report files.')
 
+    parser.add_argument('input_directory', help='Input directory with PDF files to analyze.')
 
     args = parser.parse_args()
 
@@ -140,9 +142,9 @@ def main():
 
     if args.report_per_vendor:
         for issuer, invoices in out_per_issuer.iteritems():
-            write_issuer_invoices(issuer, invoices, args.encoding)
+            write_issuer_invoices(issuer, invoices, args.encoding, args.output_dir)
     else:
-        invoices_to_csv(output, 'invoices-output.csv')
+        invoices_to_csv(output, os.path.join(args.output_dir, 'invoices-output.csv'))
 
 if __name__ == '__main__':
     main()
