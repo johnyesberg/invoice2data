@@ -236,6 +236,7 @@ class InvoiceTemplate(OrderedDict):
                     current_row = {
                         field: value.strip()
                         for field, value in match.groupdict().items()
+                        if value != None
                     }
                     continue
             if 'last_line' in self['lines']:
