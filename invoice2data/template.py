@@ -208,7 +208,13 @@ class InvoiceTemplate(OrderedDict):
     def extract_lines(self, content, output):
         """Try to extract lines from the invoice"""
         start = re.search(self['lines']['start'], content)
+        if start==None:
+            logger.warn("Could not match 'start' line.")
+            return
         end = re.search(self['lines']['end'], content[start.end():])
+        if end==None:
+            logger.warn("Could not match 'end' line.")
+            return
         _end_start = end.start() + start.end()
         if not start or not end:
             logger.warning('no lines found - start %s, end %s', start, end)
@@ -218,6 +224,10 @@ class InvoiceTemplate(OrderedDict):
         lines = []
         current_row = {}
         for line in re.split(self.options['line_separator'], content):
+            if "ignore_line" in self['lines']:
+                match = re.search(self['lines']['ignore_line'], line)
+                if match:
+                    continue
             if 'first_line' in self['lines']:
                 match = re.search(self['lines']['first_line'], line)
                 if match:
@@ -255,7 +265,7 @@ class InvoiceTemplate(OrderedDict):
                         value = ''
                     current_row[field] = '%s%s%s' % (
                         current_row.get(field, ''),
-                        current_row.get(field, '') and '\n' or '',
+                        current_row.get(field, '') and ' ' or '',
                         value
                         )
                 continue

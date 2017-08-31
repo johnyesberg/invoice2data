@@ -32,7 +32,11 @@ def extract_data(invoicefile, templates=None, debug=False, encoding='ASCII7'):
         templates = read_templates(
             pkg_resources.resource_filename('invoice2data', 'templates'))
 
-    extracted_str = pdftotext.to_text(invoicefile, encoding=encoding)
+    if (invoicefile.lower().endswith(".txt")):
+        textfile = open(invoicefile, "r")
+        extracted_str = textfile.read()
+    else:
+        extracted_str = pdftotext.to_text(invoicefile, encoding=encoding)
     charcount = len(extracted_str)
     logger.debug('number of char in pdf2text extract: %d', charcount)
     # Disable Tesseract for now.
@@ -80,6 +84,9 @@ def main():
     parser.add_argument('--encoding', dest='encoding',
                         default='ASCII7', help='Encoding of the text')
 
+    parser.add_argument('--extension', dest='extension', type=str,
+                        default='pdf', help='File extension (pdf or txt)')
+
     parser.add_argument('--input_files', type=str, nargs='+',
                         help='Files to analyze.')
 
@@ -110,7 +117,7 @@ def main():
     if args.input_files:
         files = args.input_files
     else:
-        files = glob.iglob(args.input_directory + '/*.pdf')
+        files = glob.iglob(args.input_directory + '/*.'+args.extension)
 
     for file_name in files:
         logging.info("processing file %s" % file_name)
@@ -129,7 +136,7 @@ def main():
                 pdf_title = pdftotext.get_document_title(file_name)
                 logging.info("file title: %s" % pdf_title)
                 res['title'] = pdf_title
-            except KeyError:
+            except:
                 logging.info("%s doesn't have a title... using filename instaed" % file_name)
                 res['title'] = file_name
             logger.info(res)

@@ -47,11 +47,14 @@ def write_issuer_invoices(issuer, invoices, encoding, output_dir):
     for invoice in invoices:
         invoice.pop("desc")
         if has_lines:
-            lines = remove_empty_lines(invoice.pop("lines"))
-            for line in lines:
-                full_line = invoice.copy()
-                full_line.update(line)
-                rows.append(full_line)
+            try:
+                lines = remove_empty_lines(invoice.pop("lines"))
+                for line in lines:
+                    full_line = invoice.copy()
+                    full_line.update(line)
+                    rows.append(full_line)
+            except:
+                logging.warning('No lines found')
         else:
             rows.append(invoice)
 
