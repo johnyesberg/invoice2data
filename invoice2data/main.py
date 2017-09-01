@@ -13,6 +13,7 @@ import pkg_resources
 from invoice2data import in_pdftotext as pdftotext
 from invoice2data.template import read_templates
 from invoice2data.out_csv import invoices_to_csv, write_issuer_invoices
+from invoice2data.unicode import replace_unicode_characters
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ def extract_data(invoicefile, templates=None, debug=False, encoding='ASCII7'):
         extracted_str = textfile.read()
     else:
         extracted_str = pdftotext.to_text(invoicefile, encoding=encoding)
+
+    if encoding=='ASCII7':
+        extracted_str = replace_unicode_characters(extracted_str)
+
     charcount = len(extracted_str)
     logger.debug('number of char in pdf2text extract: %d', charcount)
     # Disable Tesseract for now.
