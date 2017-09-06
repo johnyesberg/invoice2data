@@ -37,8 +37,10 @@ UTF_MAP = {'\x80': '',  # €
 
 
 def replace_unicode_characters(str):
-    #str = unidecode(str)
-    return asciify(str)
+    u = unicode(str,'utf-8')
+    str = unidecode(u)
+    a = asciify(str)
+    return a
 
 
 def asciify(uni_string, replacement_map=UTF_MAP):
