@@ -64,4 +64,8 @@ def write_issuer_invoices(issuer, invoices, encoding, output_dir):
     summary = pd.DataFrame(rows).set_index(['title', 'invoice_number'])
     if encoding == 'ASCII7':
         encoding = 'ascii'
-    summary.to_csv(out_filename, index=True, encoding=encoding)
+    try:
+        summary.to_csv(out_filename, index=True, encoding=encoding)
+    except UnicodeDecodeError:
+        logging.warning('Encoding error for file %s' % out_filename)
+    

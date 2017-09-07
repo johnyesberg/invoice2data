@@ -115,6 +115,8 @@ class InvoiceTemplate(OrderedDict):
     def parse_number(self, value):
         assert value.count(self.options['decimal_separator']) < 2,\
             'Decimal separator cannot be present several times'
+        # remove dollar sign if it's there
+        value = value.replace('$','')
         # replace decimal separator by a |
         amount_pipe = value.replace(self.options['decimal_separator'], '|')
         # remove all possible thousands separators
