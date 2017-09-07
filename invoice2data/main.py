@@ -135,7 +135,10 @@ def main():
                 out_per_issuer[res['issuer']] = [res]
 
             if args.include_file_name:
-                res['file_name'] = os.path.basename(file_name)
+                basename = os.path.basename(file_name)
+                res['file_name'] = basename
+                pdf_file_name = basename.replace('.txt','.pdf')
+                res['hyperlink'] =  '=HYPERLINK("%s", "%s")' % ('Q:\\'+pdf_file_name, basename[11:27])
 
             try:
                 pdf_title = pdftotext.get_document_title(file_name)
