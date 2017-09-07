@@ -26,6 +26,7 @@ OPTIONS_DEFAULT = {
     'replace': [],  # example: see templates/fr/fr.free.mobile.yml
     'field_separator': r'\s+',
     'line_separator': r'\n',
+    'append_separator': ' '
 }
 
 def read_templates(folder):
@@ -222,17 +223,22 @@ class InvoiceTemplate(OrderedDict):
             logger.warning('no lines found - start %s, end %s', start, end)
             return
         content = content[start.end():_end_start]
-        logger.info("content has %s cherecters" % (len(content)))
+        logger.info("content has %s characters" % (len(content)))
         lines = []
         current_row = {}
+        separator = self.options['append_separator']
+        if separator == 'newline':
+            separator = '\n'
         for line in re.split(self.options['line_separator'], content):
             if "ignore_line" in self['lines']:
                 match = re.search(self['lines']['ignore_line'], line)
                 if match:
+                    logger.debug("Lines[ignore]: %s",line)
                     continue
             if 'first_line' in self['lines']:
                 match = re.search(self['lines']['first_line'], line)
                 if match:
+                    logger.debug("Lines[first]: %s",line)
                     if current_row:
                         lines.append(current_row)
                     current_row = {
@@ -244,6 +250,7 @@ class InvoiceTemplate(OrderedDict):
             if 'last_line' in self['lines']:
                 match = re.search(self['lines']['last_line'], line)
                 if match:
+                    logger.debug("Lines[last]: %s",line)
                     for field, value in match.groupdict().items():
                         try:
                             value = value.strip()
@@ -252,7 +259,7 @@ class InvoiceTemplate(OrderedDict):
                             value = ''
                         current_row[field] = '%s%s%s' % (
                             current_row.get(field, ''),
-                            current_row.get(field, '') and '\n' or '',
+                            current_row.get(field, '') and separator or '',
                             value
                             )
                     lines.append(current_row)
@@ -260,6 +267,7 @@ class InvoiceTemplate(OrderedDict):
                     continue
             match = re.search(self['lines']['line'], line)
             if match:
+                logger.debug("Lines[line]: %s",line)
                 for field, value in match.groupdict().items():
                     try:
                         value = value.strip()
@@ -268,12 +276,12 @@ class InvoiceTemplate(OrderedDict):
                         value = ''
                     current_row[field] = '%s%s%s' % (
                         current_row.get(field, ''),
-                        current_row.get(field, '') and ' ' or '',
+                        current_row.get(field, '') and separator or '',
                         value
                         )
                 continue
             logger.debug(
-                'ignoring *%s* because it doesn\'t match anything', line
+                'ignoring "%s" because it doesn\'t match anything', line
             )
         if current_row:
             lines.append(current_row)
