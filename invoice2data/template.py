@@ -9,6 +9,7 @@ import os
 import re
 import dateparser
 from unidecode import unidecode
+import unicode
 import logging as logger
 from collections import OrderedDict
 
@@ -93,7 +94,7 @@ class InvoiceTemplate(OrderedDict):
 
         # Remove accents
         if self.options['remove_accents']:
-            optimized_str = unidecode(optimized_str)
+            optimized_str = unicode.asciify(optimized_str)
 
         # convert to lower case
         if self.options['lowercase']:
@@ -195,7 +196,7 @@ class InvoiceTemplate(OrderedDict):
 
         output['currency'] = self.options['currency']
 
-        if len(output.keys()) >= 5:
+        if True: #len(output.keys()) >= 5:
             try:
                 output['desc'] = 'Invoice %s from %s' % (
                     output['invoice_number'], self['issuer'])
@@ -223,13 +224,15 @@ class InvoiceTemplate(OrderedDict):
             logger.warning('no lines found - start %s, end %s', start, end)
             return
         content = content[start.end():_end_start]
-        logger.info("content has %s characters" % (len(content)))
+        content_lines = re.split(self.options['line_separator'], content)
+        logger.info("content has %s characters and %s lines" % (len(content),len(content_lines)))
         lines = []
         current_row = {}
         separator = self.options['append_separator']
         if separator == 'newline':
             separator = '\n'
-        for line in re.split(self.options['line_separator'], content):
+        for line in content_lines:
+            logger.debug('Lines[ ]: %s', line)
             if "ignore_line" in self['lines']:
                 match = re.search(self['lines']['ignore_line'], line)
                 if match:
