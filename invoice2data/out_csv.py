@@ -45,7 +45,10 @@ def write_issuer_invoices(issuer, invoices, encoding, output_dir):
 
     rows = []
     for invoice in invoices:
-        invoice.pop("desc")
+        try:    
+            invoice.pop("desc")
+        except:
+            pass
         if has_lines:
             try:
                 lines = remove_empty_lines(invoice.pop("lines"))

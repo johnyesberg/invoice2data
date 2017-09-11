@@ -203,8 +203,8 @@ class InvoiceTemplate(OrderedDict):
                 logger.debug(output)
                 return output
             except KeyError as err:
-                logger.error("Failed to process file: %s" % err)
-                return None
+                logger.warning("Failed to process file: %s" % err)
+                return output
         else:
             logger.error("Only %s keys in output: %s" % (len(output.keys()), output.keys()) )
             return None
