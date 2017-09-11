@@ -27,11 +27,14 @@ UTF_MAP = {'\x80': '',  # €
            '\xaa': 'a',  # ª     FEMININE ORDINAL INDICATOR
            '\xad': '-',  # SOFT HYPHEN
            '\xb0': 'deg',  # °     DEGREE SIGN
+           '\xb5': 'u',  # mu
            '\xb7': '.',  # ·     MIDDLE DOT
            '\xba': '',  # º     MASCULINE ORDINAL INDICATOR
            '\xbb': '',  # »
            '\xbc': '1/4',  # ¼     VULGAR FRACTION ONE QUARTER
            '\xbd': '1/2',  # VULGAR FRACTION ONE HALF
+           # u'\u00a0': ' ',
+           u'\u00be': '3/4', # ¾
            '\xbf': '?',  # ¿     INVERTED QUESTION MARK
            '\xc2': 'A',  # Â     LATIN CAPITAL LETTER A WITH CIRCUMFLEX
            '\xc3': 'A',  # Ã     LATIN CAPITAL LETTER A WITH TILDE

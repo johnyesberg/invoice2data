@@ -111,7 +111,11 @@ class InvoiceTemplate(OrderedDict):
         """See if string matches keywords set in template file"""
 
         if all([keyword in optimized_str for keyword in self['keywords']]):
-            logger.debug('Matched template %s', self['template_name'])
+            logger.info('Matched template %s', self['template_name'])
+            return True
+
+        if all([re.search(k,optimized_str) for k in self['keywords']]):
+            logger.info('Matched template %s', self['template_name'])
             return True
 
     def parse_number(self, value):

@@ -56,12 +56,13 @@ def write_issuer_invoices(issuer, invoices, encoding, output_dir):
                     full_line = invoice.copy()
                     full_line.update(line)
                     rows.append(full_line)
-            except:
-                logging.warning('No lines found')
+            except KeyError as ke:
+                logging.warning('No lines found: %s',ke)
+                #print(invoice)
+                rows.append(invoice)
         else:
             rows.append(invoice)
-
-
+            
     out_filename = os.path.join(output_dir ,(issuer + "_summary.csv").replace(' ', '_'))
     logging.info("Writing output summary for %s into %s" % (issuer, out_filename))
     summary = pd.DataFrame(rows).set_index(['title', 'invoice_number'])
@@ -71,4 +72,6 @@ def write_issuer_invoices(issuer, invoices, encoding, output_dir):
         summary.to_csv(out_filename, index=True, encoding=encoding)
     except UnicodeDecodeError:
         logging.warning('Encoding error for file %s' % out_filename)
+        summary.to_csv(out_filename, index=True)
+
     
